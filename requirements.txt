@@ -1,1 +1,4 @@
-requirements.txt
+PyQt6
+ping3
+requests
+matplotlib
