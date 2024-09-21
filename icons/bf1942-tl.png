@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Error 404 - Not Found</title>
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="stylesheet" href="../styles.css">
+<!--<link rel="stylesheet" href="../effects/winter.css">
+<script type="text/javascript" language="JavaScript" src="../effects/snow.js"></script>-->
+</head>
+<body>
+<div>
+<span>
+<h1>Error 404 - Not Found</h1>
+<h2>The resource you are looking for might have been removed, had its name changed, or is temporarily unavailable</h2>
+<h3>
+<a href="https://gamestates.ru" title="https://gamestates.ru">GO HOME</a>
+</h3>
+</span>
+</div>
+<span class="bottompanel" style="position: fixed; bottom: 0px; right: 0px; background-color: transparent; margin-top: 36px; margin-bottom: 1%; margin-right: 2%;">
+<a href="https://pikabu.ru/community/ori" target="_blank" title="Link to ORI Pikabu"><img src="../img/64x64/pikabu.png" class="link" border="0" height="24" width="24" alt="" style="vertical-align: middle; padding-top: 8px; padding-right: 8px;"/></a>
+<a href="https://t.me/uPlay2ru" target="_blank" title="Link to ORI Telegram"><img src="../img/64x64/telegram.png" class="link" border="0" height="24" width="24" alt="" style="vertical-align: middle; padding-top: 8px; padding-right: 8px;"/></a>
+<br>
+<a href="https://discord.com/invite/r3kCQNxX5Z" target="_blank" title="Link to ORI Discord"><img src="../img/64x64/discord.png" class="link" border="0" height="24" width="24" alt="" style="vertical-align: middle; padding-top: 8px; padding-right: 8px;"/></a>
+<a href="https://www.youtube.com/@uPlay2/streams" target="_blank" title="Link to ORI YouTube"><img src="../img/64x64/youtube.png" class="link" border="0" height="24" width="24" alt="" style="vertical-align: middle; padding-top: 8px; padding-right: 8px;"/></a>
+</span>
+</body>
+</html>
