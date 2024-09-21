@@ -20,14 +20,20 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 import matplotlib.pyplot as plt
 
 class PingWorker(QObject):
+    """Рабочий поток для выполнения ping-запросов."""
     ping_result = pyqtSignal(int)
     ping_failed = pyqtSignal()
 
     def __init__(self, address):
+        """Инициализирует PingWorker с заданным адресом.
+
+        :param address: Адрес для выполнения ping-запроса.
+        """
         super().__init__()
         self.address = address
 
     def run(self):
+        """Запускает ping-запрос к заданному адресу и передает результат."""
         try:
             response = ping(self.address, timeout=2)
             if response:
@@ -38,22 +44,26 @@ class PingWorker(QObject):
             self.ping_failed.emit()
 
 class AccordionWidget(QFrame):
+    """Виджет-аккордеон для отображения информации о сервере игры."""
     toggled = pyqtSignal(object)
 
     def __init__(self, game_key, server_info, icon_path, parent=None):
+        """Инициализирует AccordionWidget с ключом игры, информацией о сервере и путем к иконке.
+
+        :param game_key: Ключ игры.
+        :param server_info: Информация о сервере.
+        :param icon_path: Путь к иконке игры.
+        :param parent: Родительский виджет.
+        """
         super().__init__(parent)
         self.game_key = game_key
         self.server_info = server_info
         self.icon_path = icon_path
-        self.setStyleSheet("""
-            QFrame {
-                background-color: transparent;
-                margin: 0px; /* Removed margin to prevent extra spacing */
-            }
-        """)
+        self.setStyleSheet("""QFrame { background-color: transparent; margin: 0px; }""")
         self.init_ui()
 
     def init_ui(self):
+        """Инициализирует пользовательский интерфейс аккордеона."""
         self.main_layout = QVBoxLayout(self)
         self.main_layout.setContentsMargins(0, 0, 0, 0)
         self.main_layout.setSpacing(0)
@@ -61,7 +71,7 @@ class AccordionWidget(QFrame):
         self.header_button = QPushButton()
         self.header_button.setCheckable(True)
         self.header_button.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
-        self.header_button.setMinimumHeight(80)  # Increased height to accommodate fonts
+        self.header_button.setMinimumHeight(80)
         self.header_button.setStyleSheet(self.button_style())
         self.header_button.clicked.connect(self.toggle)
         self.main_layout.addWidget(self.header_button)
@@ -70,35 +80,35 @@ class AccordionWidget(QFrame):
         self.header_layout.setContentsMargins(10, 10, 10, 10)
         self.header_layout.setSpacing(10)
 
-        # Game Icon
+        # Иконка игры
         self.icon_label = QLabel()
         pixmap = QPixmap(self.icon_path).scaled(60, 60, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
         self.icon_label.setPixmap(pixmap)
-        self.icon_label.setFixedSize(60, 60)  # Ensuring icon fits into a square
+        self.icon_label.setFixedSize(60, 60)
         self.header_layout.addWidget(self.icon_label)
 
-        # Vertical Layout for Name and Info
+        # Вертикальный макет для имени и информации
         name_and_info_layout = QVBoxLayout()
         name_and_info_layout.setSpacing(2)
 
-        # Game Name
+        # Имя сервера
         server_name = self.server_info.get('name', 'Unknown Server')
         self.name_label = QLabel(server_name)
         self.name_label.setStyleSheet("color: white; font-size: 16px; font-weight: bold;")
         self.name_label.setWordWrap(True)
         name_and_info_layout.addWidget(self.name_label)
 
-        # Horizontal Layout for Map Name and Players
+        # Горизонтальный макет для имени карты и игроков
         info_layout = QHBoxLayout()
         info_layout.setSpacing(10)
 
-        # Map Name
+        # Имя карты
         map_name = self.server_info.get('current_map', 'N/A')
         self.map_name_label = QLabel(f"{map_name}")
         self.map_name_label.setStyleSheet("color: #cccccc; font-size: 14px;")
         info_layout.addWidget(self.map_name_label, alignment=Qt.AlignmentFlag.AlignLeft)
 
-        # Players
+        # Игроки
         players = f"{self.server_info.get('num_players', '0')}/{self.server_info.get('max_players', '0')}"
         self.players_label = QLabel(f"{players}")
         self.players_label.setStyleSheet("color: #cccccc; font-size: 14px;")
@@ -109,12 +119,12 @@ class AccordionWidget(QFrame):
 
         self.header_layout.addStretch()
 
-        # Ping Label (without the word "Ping")
+        # Метка пинга (без слова "Ping")
         self.ping_label = QLabel("-- ms")
         self.ping_label.setStyleSheet("color: #cccccc; font-size: 14px;")
         self.header_layout.addWidget(self.ping_label, alignment=Qt.AlignmentFlag.AlignRight)
 
-        # Availability Indicator (Circle)
+        # Индикатор доступности (круг)
         self.status_indicator = QLabel()
         self.status_indicator.setFixedSize(16, 16)
         self.status_indicator.setStyleSheet("border-radius: 8px; background-color: grey;")
@@ -122,24 +132,24 @@ class AccordionWidget(QFrame):
 
         self.header_button.setLayout(self.header_layout)
 
-        # Content Area (Map Icon and Graph)
+        # Область контента (иконка карты и график)
         self.content_area = QWidget()
         self.content_area.setMaximumHeight(0)
         self.content_area.setVisible(False)
-        self.content_layout = QHBoxLayout()  # Changed to QHBoxLayout for side-by-side
+        self.content_layout = QHBoxLayout()
         self.content_layout.setContentsMargins(10, 0, 10, 10)
         self.content_layout.setSpacing(10)
         self.content_area.setLayout(self.content_layout)
         self.main_layout.addWidget(self.content_area)
-        self.main_layout.addStretch()  # Added stretch to push content upwards
+        self.main_layout.addStretch()
 
-        # Map Icon in Content Area
+        # Иконка карты в области контента
         self.map_icon_label = QLabel()
         self.load_map_icon()
         self.map_icon_label.setFixedSize(80, 80)
         self.content_layout.addWidget(self.map_icon_label)
 
-        # Graph
+        # График
         self.create_graph()
         self.content_layout.addWidget(self.canvas)
 
@@ -150,6 +160,7 @@ class AccordionWidget(QFrame):
         self.update_ping()
 
     def toggle(self):
+        """Переключает видимость области контента."""
         if self.header_button.isChecked():
             self.content_area.setVisible(True)
             self.animation.setStartValue(0)
@@ -164,11 +175,13 @@ class AccordionWidget(QFrame):
         self.animation.finished.connect(self.adjust_parent_size)
 
     def adjust_parent_size(self):
+        """Корректирует размер родительского окна."""
         main_window = self.window()
         if main_window:
             main_window.adjustSize()
 
     def create_graph(self):
+        """Создает график для отображения данных о игроках."""
         self.figure = plt.Figure(figsize=(2, 2), dpi=100)
         self.figure.patch.set_alpha(0)
         self.canvas = FigureCanvas(self.figure)
@@ -178,6 +191,7 @@ class AccordionWidget(QFrame):
         self.update_graph()
 
     def update_graph(self):
+        """Обновляет график с данными о количестве игроков."""
         self.figure.clear()
         players_detailed = self.server_info.get('players_detailed', {})
         if not players_detailed:
@@ -206,6 +220,7 @@ class AccordionWidget(QFrame):
         self.canvas.draw()
 
     def update_ping(self):
+        """Обновляет информацию о пинге для сервера."""
         address = self.server_info.get('address')
         if address:
             self.ping_thread = QThread()
@@ -226,15 +241,21 @@ class AccordionWidget(QFrame):
 
     @pyqtSlot(int)
     def on_ping_result(self, ping_ms):
+        """Обрабатывает успешный результат ping-запроса.
+
+        :param ping_ms: Время пинга в миллисекундах.
+        """
         self.ping_label.setText(f"{ping_ms} ms")
         self.status_indicator.setStyleSheet("border-radius: 8px; background-color: green;")
 
     @pyqtSlot()
     def on_ping_failed(self):
+        """Обрабатывает неудачный результат ping-запроса."""
         self.ping_label.setText("Недоступен")
         self.status_indicator.setStyleSheet("border-radius: 8px; background-color: red;")
 
     def load_map_icon(self):
+        """Загружает иконку карты из файла или из URL, если файл отсутствует."""
         game_name = self.game_key
         current_map = self.server_info.get('current_map', '').replace(' ', '%20')
         map_icon_filename = f"map_icons/{game_name}_{current_map}.jpg"
@@ -266,9 +287,9 @@ class AccordionWidget(QFrame):
         pixmap = QPixmap(map_icon_filename).scaled(80, 80, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
         self.map_icon_label.setPixmap(pixmap)
 
-
     @staticmethod
     def button_style():
+        """Возвращает стиль кнопки."""
         return """
             QPushButton {
                 background-color: transparent;
@@ -283,6 +304,7 @@ class AccordionWidget(QFrame):
 
     @staticmethod
     def expanded_button_style():
+        """Возвращает стиль кнопки в развернутом состоянии."""
         return """
             QPushButton {
                 background-color: transparent;
@@ -296,36 +318,44 @@ class AccordionWidget(QFrame):
         """
 
 class SettingsWindow(QDialog):
+    """Окно настроек приложения."""
     settings_changed = pyqtSignal()
     settings_updated = pyqtSignal(dict)
     settings_reverted = pyqtSignal()
 
     def __init__(self, game_list, settings, parent=None):
+        """Инициализирует окно настроек.
+
+        :param game_list: Список игр.
+        :param settings: Текущие настройки.
+        :param parent: Родительский виджет.
+        """
         super().__init__(parent)
         self.setWindowTitle("Настройки")
         self.resize(600, 400)
         self.game_list = game_list
         self.settings = settings
         self.original_settings = copy.deepcopy(settings)
-        self.setModal(True)  # Make the settings window modal
+        self.setModal(True)  # Сделать окно настроек модальным
         self.init_ui()
 
     def init_ui(self):
+        """Инициализирует пользовательский интерфейс окна настроек."""
         layout = QGridLayout(self)
         self.setLayout(layout)
 
-        # Group boxes for better organization
+        # Групповые блоки для лучшей организации
         games_group = QGroupBox("Игры")
         games_layout = QGridLayout()
         games_group.setLayout(games_layout)
 
-        # Adjusted to display settings in a grid
+        # Настройки отображаются в сетке
         self.game_settings = {}
         row = 0
         col = 0
         for game_key in self.game_list:
             checkbox = QCheckBox(game_key)
-            checkbox.setChecked(self.settings.get(game_key, {}).get('enabled', False))  # Изменено на False
+            checkbox.setChecked(self.settings.get(game_key, {}).get('enabled', False))
 
             spinbox = QSpinBox()
             spinbox.setMinimum(1)
@@ -346,7 +376,7 @@ class SettingsWindow(QDialog):
                 row = 0
                 col += 3
 
-        # Transparency settings
+        # Настройки прозрачности
         transparency_group = QGroupBox("Прозрачность")
         transparency_layout = QHBoxLayout()
         transparency_group.setLayout(transparency_layout)
@@ -363,7 +393,7 @@ class SettingsWindow(QDialog):
         transparency_layout.addWidget(self.main_window_transparency)
         transparency_layout.addWidget(self.main_window_transparency_label)
 
-        # Window size settings
+        # Настройки размера окна
         size_group = QGroupBox("Размер окна")
         size_layout = QHBoxLayout()
         size_group.setLayout(size_layout)
@@ -391,25 +421,38 @@ class SettingsWindow(QDialog):
         layout.addLayout(button_layout, 3, 1)
 
     def update_transparency(self, value):
+        """Обновляет уровень прозрачности основного окна.
+
+        :param value: Уровень прозрачности (0-255).
+        """
         self.main_window_transparency_label.setText(str(value))
         self.settings['main_window_transparency'] = value
         self.settings_updated.emit(self.settings)
 
     def update_window_size(self, value):
+        """Обновляет ширину окна.
+
+        :param value: Ширина окна в пикселях.
+        """
         self.settings['window_width'] = value
         self.settings_updated.emit(self.settings)
 
     def save_settings(self):
+        """Сохраняет текущие настройки и закрывает окно."""
         self.settings_changed.emit()
         self.close()
 
     def reject(self):
-        # Restore original settings
+        """Отменяет изменения и восстанавливает оригинальные настройки."""
         self.settings = copy.deepcopy(self.original_settings)
         self.settings_reverted.emit()
         super().reject()
 
     def get_settings(self):
+        """Возвращает текущие настройки из интерфейса.
+
+        :return: Словарь с текущими настройками.
+        """
         settings = {}
         for game_key, widgets in self.game_settings.items():
             settings[game_key] = {
@@ -421,22 +464,30 @@ class SettingsWindow(QDialog):
         return settings
 
 class ResizeGrip(QWidget):
+    """Грип для изменения размера окна."""
     def __init__(self, parent=None):
+        """Инициализирует грип для изменения размера.
+
+        :param parent: Родительский виджет.
+        """
         super().__init__(parent)
         self.setCursor(Qt.CursorShape.SizeHorCursor)
         self.setFixedSize(16, 16)
         self.setStyleSheet("background: transparent;")
 
     def paintEvent(self, event):
+        """Рисует грип для изменения размера."""
         option = QStyleOptionSizeGrip()
         option.initFrom(self)
         painter = QPainter(self)
         self.style().drawControl(QStyle.ControlElement.CE_SizeGrip, option, painter, self)
 
     def mousePressEvent(self, event):
+        """Обрабатывает нажатие мыши для начала изменения размера."""
         self.offset = event.globalPosition().toPoint()
 
     def mouseMoveEvent(self, event):
+        """Обрабатывает перемещение мыши для изменения размера окна."""
         delta = event.globalPosition().toPoint() - self.offset
         self.offset = event.globalPosition().toPoint()
         parent = self.parent()
@@ -445,15 +496,13 @@ class ResizeGrip(QWidget):
         parent.adjustSize()
 
 class MainWindow(QMainWindow):
+    """Главное окно приложения."""
     def __init__(self):
+        """Инициализирует главное окно приложения."""
         super().__init__()
         self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.Window)
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
-        self.setStyleSheet("""
-            QMainWindow {
-                background-color: transparent;
-            }
-        """)
+        self.setStyleSheet("""QMainWindow { background-color: transparent; }""")
 
         screen = QApplication.primaryScreen()
         screen_geometry = screen.availableGeometry()
@@ -473,28 +522,29 @@ class MainWindow(QMainWindow):
             self.settings = {}
 
         self.resize(self.settings.get('window_width', ideal_width), 600)
-        self.setMinimumWidth(ideal_width)  # Set minimum width
+        self.setMinimumWidth(ideal_width)
         self.resizing = False
         self.moving = False
         self.init_ui()
         self.load_data()
         self.create_tray_icon()
         self.show()
-        self.adjustSize()  # Ensure correct size upon startup
+        self.adjustSize()
 
     def init_ui(self):
+        """Инициализирует пользовательский интерфейс главного окна."""
         self.central_widget = QWidget()
-        self.central_widget.setStyleSheet("background-color: rgba(30, 30, 30, 128); border-radius: 10px;")  # Semi-transparent background
+        self.central_widget.setStyleSheet("background-color: rgba(30, 30, 30, 128); border-radius: 10px;")
         self.setCentralWidget(self.central_widget)
 
         self.layout = QVBoxLayout(self.central_widget)
         self.layout.setContentsMargins(10, 10, 10, 10)
-        self.layout.setSpacing(0)  # Set spacing to 0 to prevent extra space
+        self.layout.setSpacing(0)
 
         self.content_widget = QWidget()
         self.content_layout = QVBoxLayout(self.content_widget)
         self.content_layout.setContentsMargins(0, 0, 0, 0)
-        self.content_layout.setSpacing(5)  # Minimal spacing between accordions
+        self.content_layout.setSpacing(5)
         self.layout.addWidget(self.content_widget)
 
         # Добавляем кнопку "Добавить игры"
@@ -503,14 +553,15 @@ class MainWindow(QMainWindow):
         self.layout.addWidget(self.add_games_button, alignment=Qt.AlignmentFlag.AlignCenter)
         self.add_games_button.hide()  # Изначально скрываем кнопку
 
-        # Resize Grip
+        # Грип для изменения размера окна
         # self.resize_grip = ResizeGrip(self)
-        # self.resize_grip.hide()  # Initially hidden
+        # self.resize_grip.hide()
         # self.layout.addWidget(self.resize_grip, alignment=Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignRight)
 
         self.update_timers = {}
 
     def mousePressEvent(self, event):
+        """Обрабатывает нажатие мыши на окне."""
         if event.button() == Qt.MouseButton.LeftButton:
             if event.modifiers() == Qt.KeyboardModifier.ShiftModifier:
                 self.offset = event.globalPosition().toPoint() - self.frameGeometry().topLeft()
@@ -519,25 +570,27 @@ class MainWindow(QMainWindow):
                 self.moving = False
 
     def mouseMoveEvent(self, event):
+        """Обрабатывает перемещение мыши для перемещения окна."""
         if self.moving:
             self.move(event.globalPosition().toPoint() - self.offset)
 
     def mouseReleaseEvent(self, event):
+        """Обрабатывает отпускание мыши."""
         self.moving = False
 
     def paintEvent(self, event):
+        """Рисует главное окно с заданной прозрачностью."""
         painter = QPainter(self)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
         rect = self.rect()
-        rect.setWidth(rect.width())
-        rect.setHeight(rect.height())
         transparency = self.settings.get('main_window_transparency', 128)
-        painter.setBrush(QColor(30, 30, 30, transparency))  # Use transparency from settings
+        painter.setBrush(QColor(30, 30, 30, transparency))
         painter.setPen(Qt.PenStyle.NoPen)
         painter.drawRoundedRect(rect, 10, 10)
         painter.end()
 
     def load_data(self):
+        """Загружает данные о играх и обновляет интерфейс."""
         for folder in ["icons", "map_icons"]:
             if not os.path.exists(folder):
                 os.makedirs(folder)
@@ -561,9 +614,9 @@ class MainWindow(QMainWindow):
                 print(f"Ошибка при загрузке настроек: {e}")
                 self.settings = {game_key: {'enabled': False, 'interval': 60} for game_key in self.game_list}
         else:
-            self.settings = {game_key: {'enabled': False, 'interval': 60} for game_key in self.game_list}  # Изменено на False
+            self.settings = {game_key: {'enabled': False, 'interval': 60} for game_key in self.game_list}
 
-        # Apply transparency settings
+        # Применение настроек прозрачности
         self.apply_transparency_settings()
 
         # Проверяем, есть ли включенные игры
@@ -572,15 +625,15 @@ class MainWindow(QMainWindow):
         if not enabled_games:
             self.add_games_button.show()
             self.content_widget.hide()
-            self.adjustSize()  # Подгоняем размер окна
+            self.adjustSize()
             return
         else:
             self.add_games_button.hide()
             self.content_widget.show()
 
-        # Initialize a counter to track the number of expanded widgets
+        # Инициализируем счетчик для отслеживания количества развернутых виджетов
         expanded_count = 0
-        max_expanded = 5  # Number of widgets to expand by default
+        max_expanded = 5
 
         for game_key, server_address in games.items():
             if not self.settings.get(game_key, {}).get('enabled', False):
@@ -629,20 +682,24 @@ class MainWindow(QMainWindow):
             timer.start(interval)
             self.update_timers[game_key] = timer
 
-            # Expand the first 5 widgets by default
+            # Разворачиваем первые 5 виджетов по умолчанию
             if expanded_count < max_expanded:
                 server_widget.header_button.setChecked(True)
-                # server_widget.toggle()
                 expanded_count += 1
 
         self.content_layout.addStretch()
-        self.adjustSize()  # Подгоняем размер окна
+        self.adjustSize()
 
     def apply_transparency_settings(self):
+        """Применяет настройки прозрачности к центральному виджету."""
         transparency = self.settings.get('main_window_transparency', 128)
         self.central_widget.setStyleSheet(f"background-color: rgba(30, 30, 30, {transparency}); border-radius: 10px;")
 
     def accordion_toggled(self, toggled_widget):
+        """Обрабатывает событие переключения аккордеона.
+
+        :param toggled_widget: Переключенный виджет.
+        """
         for widget in self.game_widgets.values():
             if widget != toggled_widget and widget.header_button.isChecked():
                 widget.header_button.setChecked(False)
@@ -650,6 +707,11 @@ class MainWindow(QMainWindow):
         self.adjustSize()
 
     def update_server_data(self, game_key, ip):
+        """Обновляет данные о сервере и обновляет соответствующий виджет.
+
+        :param game_key: Ключ игры.
+        :param ip: IP-адрес сервера.
+        """
         try:
             server_response = requests.get(f"http://gamestates.ru:8000/{ip}")
             server_response.raise_for_status()
@@ -671,7 +733,7 @@ class MainWindow(QMainWindow):
             widget.load_map_icon()
 
     def create_tray_icon(self):
-        """Создание иконки в трее и меню"""
+        """Создает иконку в трее и меню."""
         self.tray_icon = QSystemTrayIcon(self)
         if os.path.exists("icons/tray_icon.png"):
             self.tray_icon.setIcon(QIcon("icons/tray_icon.png"))
@@ -703,19 +765,25 @@ class MainWindow(QMainWindow):
         self.tray_icon.show()
 
     def on_tray_icon_activated(self, reason):
+        """Обрабатывает активацию иконки в трее.
+
+        :param reason: Причина активации.
+        """
         if reason == QSystemTrayIcon.ActivationReason.DoubleClick:
             self.show_window()
 
     def show_window(self):
+        """Показывает главное окно."""
         self.show()
         self.raise_()
         self.activateWindow()
 
     def hide_window(self):
+        """Скрывает главное окно."""
         self.hide()
 
     def exit_app(self):
-        """Корректный выход из приложения с удалением иконки из трея"""
+        """Корректный выход из приложения с удалением иконки из трея."""
         # Останавливаем все таймеры
         for timer in self.update_timers.values():
             timer.stop()
@@ -724,22 +792,23 @@ class MainWindow(QMainWindow):
         for widget in self.game_widgets.values():
             if hasattr(widget, 'ping_thread') and widget.ping_thread.isRunning():
                 widget.ping_thread.quit()
-                widget.ping_thread.wait()  # Ожидание завершения потока
+                widget.ping_thread.wait()
 
         # Удаляем иконку из трея
         self.tray_icon.hide()
-        self.tray_icon.deleteLater()  # Убираем иконку из трея окончательно
+        self.tray_icon.deleteLater()
 
         # Корректно закрываем приложение
         QApplication.instance().quit()
 
-
     def closeEvent(self, event):
+        """Обрабатывает событие закрытия окна приложения."""
         event.ignore()
         self.hide()
 
     def open_settings(self):
-        # Prevent multiple settings windows
+        """Открывает окно настроек."""
+        # Предотвращаем открытие нескольких окон настроек
         if hasattr(self, 'settings_window') and self.settings_window.isVisible():
             self.settings_window.raise_()
             self.settings_window.activateWindow()
@@ -752,6 +821,7 @@ class MainWindow(QMainWindow):
         self.settings_window.exec()
 
     def apply_settings(self):
+        """Применяет новые настройки и сохраняет их в файл."""
         new_settings = self.settings_window.get_settings()
         self.settings.update(new_settings)
         try:
@@ -763,16 +833,22 @@ class MainWindow(QMainWindow):
         self.reload_data()
 
     def apply_temporary_settings(self, settings):
+        """Применяет временные настройки.
+
+        :param settings: Словарь с временными настройками.
+        """
         self.settings.update(settings)
         self.apply_transparency_settings()
         self.resize(self.settings.get('window_width', self.width()), self.height())
 
     def restore_original_settings(self):
+        """Восстанавливает оригинальные настройки."""
         self.settings = copy.deepcopy(self.original_settings)
         self.apply_transparency_settings()
         self.resize(self.settings.get('window_width', self.width()), self.height())
 
     def reload_data(self):
+        """Перезагружает данные о серверах и обновляет интерфейс."""
         for widget in self.game_widgets.values():
             widget.setParent(None)
         for timer in self.update_timers.values():
@@ -782,9 +858,8 @@ class MainWindow(QMainWindow):
         self.load_data()
 
     def resizeEvent(self, event):
+        """Обрабатывает изменение размера окна."""
         super().resizeEvent(event)
-        # if self.resize_enabled:
-        #     self.resize_grip.move(self.width() - self.resize_grip.width(), self.height() - self.resize_grip.height())
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
