@@ -1,0 +1,7 @@
+Please create a default map icon and save it as "default_map.png" in this "icons" directory.
+
+A simple 64x64 or 80x80 pixel PNG image would be suitable. For example, a plain grey square or a simple graphic indicating "Map Not Available".
+
+This file will be used by the application when a specific map icon cannot be loaded.
+Ensure the "icons" directory exists at the root of the application.
+If "icons/default.png" (for game icons) is also missing, please create a similar placeholder for it.
