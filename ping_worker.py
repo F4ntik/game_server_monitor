@@ -1,6 +1,10 @@
 import logging
 from PyQt6.QtCore import QObject, pyqtSignal
-from ping3 import ping, PingError
+import ping3
+from ping3 import ping
+from ping3.errors import PingError
+
+ping3.EXCEPTIONS = True
 
 class PingWorker(QObject):
     """Рабочий поток для выполнения ping-запросов."""
