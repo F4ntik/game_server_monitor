@@ -1,7 +1,6 @@
-import logging # It's good practice to have logging available, even if not used initially
 from PyQt6.QtWidgets import QWidget, QStyleOptionSizeGrip, QStyle
 from PyQt6.QtGui import QPainter
-from PyQt6.QtCore import Qt, QPoint
+from PyQt6.QtCore import Qt
 
 class ResizeGrip(QWidget):
     """Грип для изменения размера окна."""

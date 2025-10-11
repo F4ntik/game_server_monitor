@@ -1,4 +1,3 @@
-import sys 
 import os
 import logging
 import requests
@@ -6,11 +5,11 @@ import json
 import copy
 
 from PyQt6.QtWidgets import (
-    QApplication, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, 
-    QMainWindow, QSystemTrayIcon, QMenu, QMessageBox, QStyle, QStyleOptionSizeGrip
+    QApplication, QWidget, QVBoxLayout, QPushButton,
+    QMainWindow, QSystemTrayIcon, QMenu, QMessageBox, QStyle
 )
-from PyQt6.QtGui import QIcon, QPixmap, QAction, QPainter, QColor, QCursor
-from PyQt6.QtCore import Qt, QTimer, QPoint, pyqtSignal, QSize
+from PyQt6.QtGui import QIcon, QPixmap, QAction, QPainter, QColor
+from PyQt6.QtCore import Qt, QTimer
 
 # Imports for the previously refactored classes
 from accordion_widget import AccordionWidget 

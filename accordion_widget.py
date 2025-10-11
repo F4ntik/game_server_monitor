@@ -5,10 +5,10 @@ from PyQt6.QtWidgets import (
     QFrame, QPushButton, QVBoxLayout, QHBoxLayout, QLabel, 
     QWidget, QSizePolicy
 )
-from PyQt6.QtGui import QPixmap, QColor # QColor for Qt.GlobalColor.transparent
+from PyQt6.QtGui import QPixmap
 from PyQt6.QtCore import (
-    Qt, QPropertyAnimation, QEasingCurve, pyqtSignal, QThread, 
-    QObject, pyqtSlot # QObject is parent of PingWorker. QThread, pyqtSlot for ping mechanism.
+    Qt, QPropertyAnimation, QEasingCurve, pyqtSignal, QThread,
+    pyqtSlot # QThread, pyqtSlot for ping mechanism.
 )
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 import matplotlib.pyplot as plt
